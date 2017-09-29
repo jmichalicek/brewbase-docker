@@ -1,4 +1,4 @@
-FROM debian:jessie-backports
+FROM debian:stretch-backports
 # could also use the docker-elixir base image - it is
 # based on erlang:19 which is also based on debian jessie
 MAINTAINER Justin Michalicek <jmichalicek@gmail.com>
@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y --force-yes \
     libreadline-dev \
     libsqlite3-dev \
     libssl-dev \
-    libuv-dev \
+    libuv1-dev \
     libxml2-dev \
     libxslt-dev \
     python \
@@ -57,7 +57,7 @@ RUN useradd -ms /bin/zsh developer && echo "developer ALL=(ALL) NOPASSWD:ALL" >>
 USER developer
 ENV HOME /home/developer
 WORKDIR /home/developer
-RUN touch ~/.zshrc
+RUN touch /home/developer/.zshrc
 ENV POSTGRES_DB=''
 ENV POSTGRES_USER=''
 ENV POSTGRES_PASSWORD=''
@@ -78,8 +78,8 @@ ENV GUARDIAN_SECRET_KEY=''
 # for now do not make postgres data permanent
 # VOLUME ["/var/lib/postgresql/9.4/main"]
 # Mount the local code here
-VOLUME ["$HOME/worrywort/"]
+VOLUME ["/home/developer/worrywort/"]
 
 # ENV DJANGO_SETTINGS_MODULE bash_shell_net.settings.local
-# RUN echo export PATH="$PATH:/path/to/elixir/bin" >> $HOME/.zshrc
+# RUN echo export PATH="$PATH:/path/to/elixir/bin" >> /home/developer/.zshrc
 CMD /bin/zsh
