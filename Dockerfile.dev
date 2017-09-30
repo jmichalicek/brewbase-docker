@@ -4,8 +4,9 @@ FROM debian:stretch-backports
 MAINTAINER Justin Michalicek <jmichalicek@gmail.com>
 EXPOSE 4000
 
-RUN apt-get update && apt-get install -y --allow-downgrades \
-    --allow-remove-essential --allow-change-held-packages \
+# I can probably remove some of these
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    --allow-downgrades --allow-remove-essential --allow-change-held-packages \
     autoconf \
     bind9-host \
     bison \
@@ -15,6 +16,7 @@ RUN apt-get update && apt-get install -y --allow-downgrades \
     daemontools \
     dnsutils \
     git \
+    gnupg \
     inotify-tools \
     libbz2-dev \
     libcurl4-openssl-dev \
@@ -44,16 +46,17 @@ RUN apt-get update && apt-get install -y --allow-downgrades \
 RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main' >> /etc/apt/sources.list.d/pgdg.list
 RUN apt-get install wget ca-certificates && \
     wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-RUN apt-get update && apt-get install -y --allow-downgrades \
-    --allow-remove-essential --allow-change-held-packages \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    --allow-downgrades --allow-remove-essential --allow-change-held-packages \
     postgresql-client-9.6 libpq-dev libpq5 \
     && apt-get autoremove && apt-get clean
 
-# Not sure I like this because you can't control which version you get here.
 RUN wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && sudo dpkg -i erlang-solutions_1.0_all.deb
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     --allow-downgrades --allow-remove-essential --allow-change-held-packages \
-    esl-erlang=1:20.1 elixir && apt-get autoremove && apt-get clean
+    erlang-base-hipe=1:20.1-1 erlang=1:20.1-1 elixir=1.5.1-1 \
+    && apt-get autoremove && apt-get clean
+
 
 RUN useradd -ms /bin/zsh developer && echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 # set dev db to trust all local users
@@ -83,7 +86,7 @@ ENV GUARDIAN_SECRET_KEY=''
 # for now do not make postgres data permanent
 # VOLUME ["/var/lib/postgresql/9.4/main"]
 # Mount the local code here
-VOLUME ["/home/developer/worrywort/"]
+VOLUME ["/home/developer/worrywort"]
 
 # ENV DJANGO_SETTINGS_MODULE bash_shell_net.settings.local
 # RUN echo export PATH="$PATH:/path/to/elixir/bin" >> /home/developer/.zshrc
